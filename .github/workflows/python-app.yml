@@ -1,0 +1,35 @@
+name: Build Windows EXE
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Write source file (fw.py)
+        shell: bash
+        run: |
+          echo "aW1wb3J0IHJlCmltcG9ydCB0aW1lCmltcG9ydCBweXBlcmNsaXAKZnJvbSBweW5wdXQgaW1wb3J0IG1vdXNlCmZyb20gcHlucHV0LmtleWJvYXJkIGltcG9ydCBDb250cm9sbGVyLCBLZXkKCmtleWJvYXJkID0gQ29udHJvbGxlcigpCgpkZWYgY2xlYW5fY2xpcGJvYXJkKCk6CiAgICB0ZXh0ID0gcHlwZXJjbGlwLnBhc3RlKCkKICAgICMg2YfYsSDahtuM2LLbjCDYutuM2LEg2KfYsiDYsdmC2YUg2LHYpyDYrdiw2YEg2qnZhiAoKyAtICggKSDZgdin2LXZhNmHINmIINit2LHZiNmBKQogICAgZGlnaXRzX29ubHkgPSByZS5zdWIociJcRCIsICIiLCB0ZXh0KQogICAgcHlwZXJjbGlwLmNvcHkoZGlnaXRzX29ubHkpCiAgICBwcmludChmItiq2YXbjNiyINi02K8gXHUyMTkyIHtkaWdpdHNfb25seSFyfSIpCgpkZWYgcGFzdGVfY2xpcGJvYXJkKCk6CiAgICAjINi02KjbjNmH4oCM2LPYp9iy24wgQ3RybCtWCiAgICBrZXlib2FyZC5wcmVzcyhLZXkuY3RybCkKICAgIGtleWJvYXJkLnByZXNzKCd2JykKICAgIGtleWJvYXJkLnJlbGVhc2UoJ3YnKQogICAga2V5Ym9hcmQucmVsZWFzZShLZXkuY3RybCkKICAgIHByaW50KCLZvtuM2LPYqiDYtNivIikKCmRlZiBvbl9jbGljayh4LCB5LCBidXR0b24sIHByZXNzZWQpOgogICAgaWYgbm90IHByZXNzZWQ6CiAgICAgICAgcmV0dXJuCiAgICBpZiBidXR0b24gPT0gbW91c2UuQnV0dG9uLngyOiAgICAgICMg2qnZhNuM2K8g2YHZiNix2YjYp9ix2K8gXHUyMTkyINiq2YXbjNiyINqp2LHYr9mGINqp2YTbjNm+4oCM2KjZiNix2K8KICAgICAgICBjbGVhbl9jbGlwYm9hcmQoKQogICAgZWxpZiBidXR0b24gPT0gbW91c2UuQnV0dG9uLngxOiAgICAjINqp2YTbjNivINio2qkgXHUyMTkyINm+24zYs9iqINqp2LHYr9mGCiAgICAgICAgIyDaqdmF24wg2KrYo9iu24zYsSDYqtinINqp2YTbjNqpINmF2KfZiNizINiq2YXYp9mFINi02YjYrwogICAgICAgIHRpbWUuc2xlZXAoMC4wNSkKICAgICAgICBwYXN0ZV9jbGlwYm9hcmQoKQoKcHJpbnQoItio2LHZhtin2YXZhyDZgdi52KfZhCDYp9iz2Ko6IikKcHJpbnQoIlx1MjAyMiDaqdmE24zYryDZgdmI2LHZiNin2LHYryDZhdin2YjYsyBcdTIxOTIg2qnZhNuM2b7igIzYqNmI2LHYryDYsdinINiq2YXbjNiyINmF24zigIzaqdmG2K8iKQpwcmludCgiXHUyMDIyINqp2YTbjNivINio2qkg2YXYp9mI2LMgXHUyMTkyINm+24zYs9iqINmF24zigIzaqdmG2K8gKEN0cmwrVikiKQpwcmludCgi2KjYsdin24wg2K7YsdmI2Kw6IEN0cmwrQyIpCgp3aXRoIG1vdXNlLkxpc3RlbmVyKG9uX2NsaWNrPW9uX2NsaWNrKSBhcyBsaXN0ZW5lcjoKICAgIGxpc3RlbmVyLmpvaW4oKQo=" | base64 -d > fw.py
+          echo '--- fw.py written ---'
+          cat fw.py
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyperclip pynput pyinstaller
+
+      - name: Build EXE
+        run: pyinstaller --onefile --name fw fw.py
+
+      - name: Upload EXE artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: fw-exe
+          path: dist/fw.exe
